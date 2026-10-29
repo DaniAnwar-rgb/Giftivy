@@ -68,7 +68,7 @@ textarea{min-height:110px;resize:vertical}
 .thx-i{width:60px;height:60px;border-radius:50%;background:var(--sirih);color:#fff;font-size:32px;line-height:60px;margin:0 auto 12px}
 .thx-c h2{margin:0 0 8px;font-size:22px}.thx-c p{margin:0 0 6px;color:var(--mute)}.thx-c .code{display:inline-block;margin:8px 0 16px;padding:4px 12px;border-radius:8px;background:var(--bg);border:1px dashed var(--gold);font-weight:700;color:var(--ink)}
 @keyframes thxf{from{opacity:0}}@keyframes thxp{from{transform:translateY(14px) scale(.96);opacity:0}}
-.qty{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.qb{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--ink);font:inherit;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}.qb:not(:disabled):hover{border-color:var(--ind);background:color-mix(in srgb,var(--ind) 10%,var(--surf))}.qb:disabled{opacity:.35;cursor:not-allowed}.qty output{font-weight:800;font-size:17px;min-width:2ch;text-align:center}div.opt{cursor:default}.dpic{width:100%;max-height:300px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.14);display:block;margin-bottom:8px}@media(min-width:861px){.side{max-height:calc(100vh - 24px);overflow:auto}}
+.qty{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.qb{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--ink);font:inherit;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}.qb:not(:disabled):hover{border-color:var(--ind);background:color-mix(in srgb,var(--ind) 10%,var(--surf))}.qb:disabled{opacity:.35;cursor:not-allowed}.qty output{font-weight:800;font-size:17px;min-width:2ch;text-align:center}div.opt{cursor:default}#pinfo .pi{background:#F6F2E7;color:#2a2a2a;border:1px solid var(--line)}.slot img{pointer-events:none}.dpic{width:100%;max-height:220px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.14);display:block;margin-bottom:8px}@media(min-width:861px){.side{max-height:calc(100vh - 24px);overflow:auto}}
 .side.off{display:none}.wrap.noside{grid-template-columns:1fr}.pi{margin-top:8px;background:rgba(255,255,255,.92);color:#2a2a2a;border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.5}
 </style>
 </head>
@@ -83,7 +83,7 @@ textarea{min-height:110px;resize:vertical}
 <main id="main"></main>
 <aside class="side" aria-label="Pratinjau hampers">
 <h3>Hampers kamu</h3>
-<div class="box" id="pbox"><div class="slots" id="pslots"></div></div>
+<div id="pdes"></div><div class="box" id="pbox"><div class="slots" id="pslots"></div></div><div id="pinfo"></div>
 <div class="card" id="pcard"></div>
 <div class="sum" id="psum"></div>
 </aside>
@@ -355,8 +355,12 @@ function preview(){
  $("pcard").style.setProperty("--rib",d?d.rib:"#F2B632");
  const has=S.items.length>0;
  document.querySelector(".side").classList.toggle("off",!has);document.querySelector(".wrap").classList.toggle("noside",!has);
- const sl=$("pslots");sl.style.gridTemplateColumns="1fr";
- sl.innerHTML=b?`${d&&(PH[d.id]||d.img)?dpic(d):`<img src="${BOX.indexOf(b)==2&&S.occ=="lebaran"?IMG.open:IMGB[b.id]}" alt="Boks ${esc(b.n)}" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;display:block">`}<div class="pi"><b>Isi hampers:</b>${grp(S.items).map(([i,q])=>`<div>• ${esc(g(FOOD,i).n)}${q>1?" ×"+q:""}</div>`).join("")}</div>`:"";
+ const sl=$("pslots");
+ if(b){const arr=S.items.map(i=>g(FOOD,i));sl.style.gridTemplateColumns=`repeat(${b.cols},1fr)`;
+  sl.innerHTML=Array.from({length:b.slots},(_,k)=>{const f=arr[k];return f?`<div class="slot f" title="${esc(f.n)}"><img src="${f.img}" alt="${esc(f.n)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:block"></div>`:`<div class="slot" role="img" aria-label="Tempat kosong">+</div>`}).join("")}
+ else sl.innerHTML="";
+ $("pdes").innerHTML=b&&d&&(PH[d.id]||d.img)?dpic(d):"";
+ $("pinfo").innerHTML=b?`<div class="pi"><b>Isi hampers:</b>${grp(S.items).map(([i,q])=>`<div>\u2022 ${esc(g(FOOD,i).n)}${q>1?" \u00d7"+q:""}</div>`).join("")}</div>`:"";
  $("pcard").innerHTML=S.msg?`<i>Untuk ${esc(S.to||"…")}</i>${esc(S.msg)}${S.from?`<i style="margin-top:6px">– ${esc(S.from)}</i>`:""}`:`<span style="opacity:.6">Kartu ucapan akan tampil di sini.</span>`;
  $("psum").innerHTML=b?`<div><span>${b.n}</span><span>${rp(b.price)}</span></div><div><span>Penataan + pemeriksaan mutu</span><span>${rp(ASM)}</span></div><div><span>Makanan (${S.items.length})</span><span>${rp(foodTotal())}</span></div>${S.step>=6?`<div><span>Ongkir</span><span>${rp(shipP())}</span></div>`:""}<div class="t"><span>Total</span><span>${rp(subtotal()+(S.step>=6?shipP():0))}</span></div>`:`<div style="color:var(--mute)">Pilih boks untuk melihat harga.</div>`;
 }
